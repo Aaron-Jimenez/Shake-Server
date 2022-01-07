@@ -1,0 +1,23 @@
+{
+  "name": "shake-server",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1048.0",
+    "axios": "^0.24.0",
+    "body-parser": "^1.19.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "multer": "^1.4.4",
+    "multer-s3": "^2.10.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.5.0"
+  }
+}
