@@ -45,37 +45,13 @@ async function download (filename) {
     return Body
 }
 
-
-const cors = require('cors');
-const port = 8081;
-
-var corsOptions = {
-    origin: 'http://localhost:3000'
-}
-
-app.use(cors(corsOptions));
-
-// Parse URL-encoded bodies (as sent by HTML forms)
-app.use(express.urlencoded());
-
-// Parse JSON bodies (as sent by API clients)
-app.use(express.json());
-
-// Access the parse results as request.body
-app.post('/video/upload', upload.array('file', 1), function(req, res){
-    res.sendStatus(200);
-});
-
-app.get('/video/view', function(req, res){
-    // res.sendFile(`media/${req.query.filename}`, { root: __dirname });
-    // Ensure there is a range given for the video
-    const range = req.headers.range;
+async function pipeVideo(fileName, range, res) {
     if (!range) {
         res.status(400).send("Requires Range header");
     }
 
     // get video stats (about 61MB)
-    const videoPath = `media/${req.query.filename}`;
+    const videoPath = `media/${fileName}`;
     const videoSize = fs.statSync(videoPath).size;
 
     // Parse Range
@@ -101,6 +77,53 @@ app.get('/video/view', function(req, res){
 
     // Stream the video chunk to the client
     videoStream.pipe(res);
+}
+
+
+const cors = require('cors');
+const {response} = require("express");
+const port = 8081;
+
+var corsOptions = {
+    origin: 'http://localhost:3000'
+}
+
+app.use(cors(corsOptions));
+
+// Parse URL-encoded bodies (as sent by HTML forms)
+app.use(express.urlencoded());
+
+// Parse JSON bodies (as sent by API clients)
+app.use(express.json());
+
+// Access the parse results as request.body
+app.post('/video/upload', upload.array('file', 1), function(req, res){
+    res.sendStatus(200);
+});
+
+app.get('/video/view-by-name', function(req, res){
+    // Ensure there is a range given for the video
+    var filename = req.query.filename;
+    if (req.query.filename === "birds") {
+        filename = "bigbuck.mp4"
+    }
+    pipeVideo(filename, req.headers.range, res);
+});
+
+app.get('/image/birds', function(req, res){
+    // Ensure there is a range given for the video
+    const files = []
+    if (fs.existsSync("./media/bigbuck.mp4")) {
+        res.sendFile("/Users/aaronjimenez/Projects/eth/shake-server/images/birds.png")
+    }
+});
+
+app.get('/image/lions', function(req, res){
+    // Ensure there is a range given for the video
+    const files = []
+    if (fs.existsSync("./media/lionvideo.mp4")) {
+        res.sendFile("/Users/aaronjimenez/Projects/eth/shake-server/images/lions.png")
+    }
 });
 
 app.listen(port, () => {
