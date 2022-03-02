@@ -3,6 +3,7 @@ var multer = require('multer')
 const app = express();
 const bodyParser = require('body-parser');
 const fs = require('fs')
+const PNG = require('pngjs').PNG;
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // AWS
@@ -36,7 +37,7 @@ var multerS3 = require('multer-s3');
 //         }
 // })});
 
-async function download (filename) {
+async function download(filename) {
     console.log("filename param: ", filename);
     const { Body } = await s3.getObject({
         Key: filename,
@@ -55,7 +56,6 @@ async function pipeVideo(fileName, range, res) {
     const videoSize = fs.statSync(videoPath).size;
 
     // Parse Range
-    // Example: "bytes=32324-"
     const CHUNK_SIZE = 10 ** 6; // 1MB
     const start = Number(range.replace(/\D/g, ""));
     const end = Math.min(start + CHUNK_SIZE, videoSize - 1);
@@ -110,19 +110,19 @@ app.get('/video/view-by-name', function(req, res){
     pipeVideo(filename, req.headers.range, res);
 });
 
-app.get('/image/birds', function(req, res){
-    // Ensure there is a range given for the video
-    const files = []
-    if (fs.existsSync("./media/bigbuck.mp4")) {
-        res.sendFile("/Users/aaronjimenez/Projects/eth/shake-server/images/birds.png")
-    }
-});
-
-app.get('/image/lions', function(req, res){
-    // Ensure there is a range given for the video
-    const files = []
-    if (fs.existsSync("./media/lionvideo.mp4")) {
+app.get('/image', function(req, res){
+    console.log(req.query.imageName)
+    if (req.query.imageName === "bigbuck") {
+        var images = []
+        var data =  fs.readFile("/Users/aaronjimenez/Projects/eth/shake-server/images/birds.png")
+        console.log(data)
+        var png = PNG.sync.read(data);
+        images.concat(png)
+        res.send(images)
+    } else if (req.query.imageName === "lions") {
         res.sendFile("/Users/aaronjimenez/Projects/eth/shake-server/images/lions.png")
+    } else if (req.query.imageName === "animals") {
+
     }
 });
 
